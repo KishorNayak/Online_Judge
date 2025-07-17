@@ -67,6 +67,7 @@ app.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         //creatig the user in database
+        console.log("user created");
         const user = await User.create({
             firstname: firstname.trim(),
             lastname: lastname.trim(),
