@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import "tailwindcss";
+const API = import.meta.env.VITE_API_URL;
 
-const Register = () => {
+
+const login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -20,14 +22,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
         try {
-      const response = await axios.post('http://localhost:8080/login', formData);
-      console.log("Registration successful:", response.data);
+      const response = await axios.post('`${API}/api/login`', formData);
+      console.log("Login successful:", response.data);
       // Optionally, redirect or show success message
     } catch (error) {
       if (error.response) {
-        console.error("Registration failed:", error.response.data.message || error.response.data);
+        console.error("Logion failed:", error.response.data.message || error.response.data);
       } else {
-        console.error("Error during registration:", error.message);
+        console.error("Error during Login:", error.message);
       }
     }
     console.log(formData);
@@ -106,4 +108,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default login;
