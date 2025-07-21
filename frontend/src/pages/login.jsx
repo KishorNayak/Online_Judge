@@ -22,7 +22,7 @@ const login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
         try {
-      const response = await axios.post('`${API}/api/login`', formData);
+      const response = await axios.post('`${API}/login`', formData);
       console.log("Login successful:", response.data);
       // Optionally, redirect or show success message
     } catch (error) {

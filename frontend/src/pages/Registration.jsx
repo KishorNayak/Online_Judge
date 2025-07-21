@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios'
 import { Link } from 'react-router-dom';
-import "tailwindcss";
 const API = import.meta.env.VITE_API_URL;
 
 const Register = () => {
@@ -23,7 +22,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
         try {
-      const response = await axios.post(`${API}/api/register`, formData);
+      const response = await axios.post(`${API}/register`, formData);
       console.log("Registration successful:", response.data);
       // Optionally, redirect or show success message
     } catch (error) {

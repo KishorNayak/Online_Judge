@@ -1,15 +1,26 @@
 const mongoose = require("mongoose");
 
+const testCaseSchema = new mongoose.Schema({
+  input: {
+    type: String,
+    required: true,
+  },
+  output: {
+    type: String,
+    required: true,
+  }
+});
+
 const ProblemSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
     minlength: [3, "Title must be at least 3 characters long"],
   },
-  description: {
+  discription: {
     type: String,
     required: true,
-    minlength: [50, "Discription must be at least 50 characters long"],
+    minlength: [10, "Discription must be at least 10 characters long"],
   },
   inputFormat: {
     type: String,
@@ -28,6 +39,15 @@ const ProblemSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+  },
+  testcases: {
+    type: [testCaseSchema],
+    validate: {
+      validator: function(testcases) {
+        return testcases && testcases.length > 0;
+      },
+      message: 'At least one test case is required'
+    }
   },
   difficulty: {
     type: String,
