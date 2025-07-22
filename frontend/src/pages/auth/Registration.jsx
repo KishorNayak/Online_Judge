@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios'
 import { Link } from 'react-router-dom';
-import "tailwindcss";
 const API = import.meta.env.VITE_API_URL;
 
-
-const login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
+    firstname: '',
+    lastname: '',
     email: '',
     password: '',
   });
@@ -22,14 +22,14 @@ const login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
         try {
-      const response = await axios.post('`${API}/login`', formData);
-      console.log("Login successful:", response.data);
+      const response = await axios.post(`${API}/api/auth/register`, formData);
+      console.log("Registration successful:", response.data);
       // Optionally, redirect or show success message
     } catch (error) {
       if (error.response) {
-        console.error("Logion failed:", error.response.data.message || error.response.data);
+        console.error("Registration failed:", error.response.data.message || error.response.data);
       } else {
-        console.error("Error during Login:", error.message);
+        console.error("Error during registration:", error.message);
       }
     }
     console.log(formData);
@@ -42,10 +42,31 @@ const login = () => {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
       >
-        <h2 className="text-2xl font-semibold text-center mb-2">Login</h2>
+        <h2 className="text-2xl font-semibold text-center mb-2">Register</h2>
         <p className="text-gray-500 text-center mb-6">
-          Login into account.
+          Create your account.
         </p>
+
+        <div className="flex gap-4 mb-4">
+          <input
+            type="text"
+            name="firstname"
+            placeholder="First Name"
+            value={formData.firstname}
+            onChange={handleChange}
+            className=" w-1/2 px-3 py-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            name="lastname"
+            placeholder="Last Name"
+            value={formData.lastname}
+            onChange={handleChange}
+            className="w-1/2 px-3 py-2 border rounded"
+            required
+          />
+        </div>
 
         <input
           type="email"
@@ -97,10 +118,10 @@ const login = () => {
         </button>
 
         <p className="text-center text-sm text-gray-600 mt-4">
-          Dont't have an account?{' '}
+          Already have an account?{' '}
            {/* # - link for login page */}
-          <Link to="/register" className="text-blue-600 underline">
-            Register now
+          <Link to="/login" className="text-blue-600 underline">
+            Sign in
           </Link>
         </p>
       </form>
@@ -108,4 +129,4 @@ const login = () => {
   );
 };
 
-export default login;
+export default Register;

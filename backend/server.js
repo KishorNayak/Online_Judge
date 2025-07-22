@@ -2,9 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/authRoutes');
+
+//calling  MongoDB connecting fucntion
 const { DBConnection } = require("./database/db.js");
 DBConnection(); 
+
+//importing the routes
+const  authRoutes = require('./routes/authRoutes.js');
+const problemRoutes = require('./routes/CRUDRoutes.js')
 
 dotenv.config();
 const app = express();
@@ -22,7 +27,8 @@ app.get("/", (req, res) => {
 });
 
 // Route mounting
-app.use('/', authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/problems', problemRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

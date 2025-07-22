@@ -77,7 +77,7 @@ const CreatingProblem = () => {
 
         try {
             console.log(`this is: ${API}/newproblem`);
-            const response = await axios.post(`${API}/newproblem`, formData);
+            const response = await axios.post(`${API}/api/problems/createproblem`, formData);
             console.log("Problem created successfully:", response.data);
             setSuccess('Problem created successfully!');
             

@@ -4,11 +4,12 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import "tailwindcss"
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Register from './pages/Registration';
+import Register from './pages/auth/Registration';
 import Navbar from './components/Navbar';
 import Home from './pages/home'
-import Login from './pages/login'
-import Newproblem from './pages/newproblem'
+import Login from './pages/auth/login'
+import Newproblem from './pages/problems/createproblem'
+import Problemlist from './pages/problems/problemlist'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -19,7 +20,8 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/newproblem" element={<Newproblem/>}/>
+        <Route path="/createproblem" element={<Newproblem/>}/>
+        <Route path="/problemlist" element={<Problemlist/>}/>
       </Routes>
     </Router>
   );
