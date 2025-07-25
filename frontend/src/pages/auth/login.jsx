@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import "tailwindcss";
 const API = import.meta.env.VITE_API_URL;
+import { useDispatch } from 'react-redux';
+import { verifyadmin, verifylogin } from '../../features/authSlice';
+
 
 
 const login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,11 +27,17 @@ const login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-        try {
-      const response = await axios.post('`${API}//api/auth/login`', formData);
+    setError('');
+    try {
+      const response = await axios.post(`${API}/api/auth/login`, formData);
       console.log("Login successful:", response.data);
-      // Optionally, redirect or show success message
+      dispatch(verifylogin());
+      dispatch(verifyadmin(response.data.user.email));
+      console.log("Login response:", response.data);
+      navigate('/home');
+    
     } catch (error) {
+      setError(error.response?.data?.message || "Login failed. Please try again.");
       if (error.response) {
         console.error("Logion failed:", error.response.data.message || error.response.data);
       } else {
@@ -47,6 +59,8 @@ const login = () => {
           Login into account.
         </p>
 
+        {error && <p className="text-red-600 mb-4">{error}</p>}
+
         <input
           type="email"
           name="email"
@@ -66,28 +80,6 @@ const login = () => {
           className="w-full mb-4 px-3 py-2 border rounded"
           required
         />
-{/* 
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            name="accepted"
-            checked={formData.accepted}
-            onChange={handleChange}
-            className="mr-2"
-            required
-          />
-          <span className="text-sm text-gray-600">
-            I accept the{' '}
-            <a href="#" className="text-green-600 underline">
-              Terms of Use
-            </a>{' '}
-            &{' '}
-            <a href="#" className="text-green-600 underline">
-              Privacy Policy
-            </a>
-            .
-          </span>
-        </div> */}
 
         <button
           type="submit"

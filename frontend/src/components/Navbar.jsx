@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { verifylogout } from '../features/authSlice';
 
 function Navbar() {
+  const dispatch = useDispatch();
   return (
     <nav className="bg-gray-600 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,7 +14,7 @@ function Navbar() {
           </div>
           <div className="hidden md:flex space-x-4">
             <Link to="/login" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Login</Link>
-            <Link to="/logout" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Logout</Link>
+            <Link to="/login" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium" onClick={() => dispatch(verifylogout())}>Logout</Link>
             <Link to="/profile" className="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Profile</Link>
           </div>
         </div>

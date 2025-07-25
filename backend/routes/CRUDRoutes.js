@@ -10,6 +10,7 @@ const { createproblem,
 //get
 router.get('/createproblem', (req, res) => res.send("this is new problem page"));
 router.get('/getallproblems', getallproblems); 
+router.get('/getProblemById/:id', getProblemById);
 
 //post
 router.post('/createproblem', createproblem);

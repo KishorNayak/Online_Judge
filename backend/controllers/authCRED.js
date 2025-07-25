@@ -91,7 +91,9 @@ const getallproblems = async (req, res) => {
     if (tags) {filter.tags = { $in: tags.split(',') }; }// Match any of the tags // Filter by tags if provided (comma-separated)
 
     // Fetch problems from database sorted by latest created
-    const problems = await Problem.find(filter).sort({ createdAt: -1 });
+    const problems = await Problem.find(filter)
+  .sort({ createdAt: -1 })
+  .select('title _id difficulty tags');
 
     // Send response to client
     res.status(200).json(problems);

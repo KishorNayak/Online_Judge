@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 const API = import.meta.env.VITE_API_URL;
 
+import { useDispatch } from 'react-redux';
+import { verifyadmin, verifylogin, verifylogout } from '../../features/authSlice';
+
+
 const Register = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
     email: '',
     password: '',
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,11 +28,17 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
         try {
       const response = await axios.post(`${API}/api/auth/register`, formData);
       console.log("Registration successful:", response.data);
+      dispatch(verifylogin());
+      dispatch(verifyadmin(response.data.user.email));
+      console.log("Login response:", response.data);
+      navigate('/home');
       // Optionally, redirect or show success message
     } catch (error) {
+      setError(error.response?.data?.message || "Login failed. Please try again.");
       if (error.response) {
         console.error("Registration failed:", error.response.data.message || error.response.data);
       } else {
