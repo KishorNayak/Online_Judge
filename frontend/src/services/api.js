@@ -1,10 +1,10 @@
 import axios from 'axios';
+
 const API = import.meta.env.VITE_API_URL;
 
 export const fetchProblems = async (queryString = '') => {
-    console.log(`${API}/api/problems/getallproblems?${queryString}`);
+  console.log(`${API}/api/problems/getallproblems?${queryString}`);
   try {
-    // console/log(`${API}/api/problems/getallproblems?${queryString}`);
     const res = await axios.get(`${API}/api/problems/getallproblems?${queryString}`);
     return res.data;
   } catch (error) {

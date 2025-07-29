@@ -1,9 +1,12 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const { generatefile } = require("./generatefile");
-const { executeCode } = require("./exceute");
+const { executeCode, submitCode } = require("./exceute");
 require("dotenv").config();
+
+//calling  MongoDB connecting fucntion
+const { DBConnection } = require("./database/db.js");
+DBConnection(); 
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -16,7 +19,7 @@ app.get("/compiler", (req,res) => {
   res.send("this is compiler");
 })
 
-app.post("/compiler", (req, res) => {
+app.post("/compiler/run", (req, res) => {
   const { code, language, input } = req.body;
 
   // Check if code and language are provided
@@ -40,7 +43,43 @@ app.post("/compiler", (req, res) => {
     console.error("Error generating file:", err);
     res.status(500).json({ error: "Failed to generate file" });
   }
-}); 
+});
+
+app.get("/compiler/submit", (req,res) => {
+  res.send("this is submit");
+})
+
+// New endpoint for code submission and evaluation
+app.post("/compiler/submit", async (req, res) => {
+  const { code, language, id } = req.body;
+
+  // Validate required fields
+  if (!code || !language || !id) {
+    return res.status(400).json({ 
+      error: "Code, language, and id are required" 
+    });
+  }
+
+  try {
+    // Generate file for the submitted code
+    const filePath = generatefile(language, code);
+    console.log("Generated submission file at:", filePath);
+
+    // Submit and evaluate the code
+    const result = await submitCode(id, filePath, language);
+    
+    // Return the evaluation result
+    res.status(200).json(result);
+
+  } catch (err) {
+    console.error("Submission error:", err);
+    res.status(500).json({ 
+      verdict: "ERROR",
+      message: "Failed to process submission",
+      error: err.message 
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

@@ -1,6 +1,12 @@
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
+const API = process.env.VITE_API_URL;
+// Import Problem model (assuming it's available)
+const Problem = require('../backend/models/problem');
+const { default: axios } = require('axios');
 
 const outputDir = path.join(__dirname, 'output');
 
@@ -35,7 +41,7 @@ const executeCode = async (filepath, input = '', language = 'cpp') => {
     }
 
     return new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
+        exec(command,(error, stdout, stderr) => {
             if (error) return reject({ error, stderr });
             if (stderr) return reject({ stderr });
             resolve(stdout);
@@ -43,4 +49,109 @@ const executeCode = async (filepath, input = '', language = 'cpp') => {
     });
 };
 
-module.exports = { executeCode };
+
+const submitCode = async (id, filepath, language = 'cpp') => {
+    try {
+        console.log("problem is being fetched");
+        const res = await axios.get(`${API}/problems/getProblemById?id=${id}`);
+        const problem = res.data;
+        console.log(problem);
+        if (!problem) {
+            return {
+                verdict: 'ERROR',
+                message: 'Problem not found',
+                testResults: []
+            };
+        }
+
+        const testResults = [];
+        let passedTests = 0;
+        let totalTests = problem.testcases.length;
+
+        // Test against all test cases
+        for (let i = 0; i < problem.testcases.length; i++) {
+            const testCase = problem.testcases[i];
+            
+            try {
+                // Execute code with test case input
+                const actualOutput = await executeCode(filepath, testCase.input, language);
+                const expectedOutput = testCase.output.trim();
+                
+                // Compare outputs (normalize whitespace)
+                const isCorrect = actualOutput === expectedOutput;
+                
+                if (isCorrect) {
+                    passedTests++;
+                }
+
+                testResults.push({
+                    testCase: i + 1,
+                    input: testCase.input,
+                    expectedOutput: expectedOutput,
+                    actualOutput: actualOutput,
+                    status: isCorrect ? 'PASSED' : 'FAILED',
+                    verdict: isCorrect ? 'Accepted' : 'Wrong Answer'
+                });
+
+            } catch (error) {
+                let verdict = 'Runtime Error';
+                let message = error.error || error.stderr || 'Unknown error';
+
+                // Determine specific error type
+                if (message.includes('Time Limit Exceeded') || message.includes('timed out')) {
+                    verdict = 'Time Limit Exceeded';
+                } else if (message.includes('Compilation failed') || message.includes('error:')) {
+                    verdict = 'Compilation Error';
+                } else if (message.includes('Segmentation fault') || message.includes('segfault')) {
+                    verdict = 'Runtime Error (Segmentation Fault)';
+                }
+
+                testResults.push({
+                    testCase: i + 1,
+                    input: testCase.input,
+                    expectedOutput: testCase.output.trim(),
+                    actualOutput: '',
+                    status: 'ERROR',
+                    verdict: verdict,
+                    error: message
+                });
+
+                // Stop execution on first error (optional - you can continue if needed)
+                break;
+            }
+        }
+
+        // Determine overall verdict
+        let overallVerdict;
+        let message;
+
+        if (passedTests === totalTests) {
+            overallVerdict = 'ACCEPTED';
+            message = `All ${totalTests} test cases passed!`;
+        } else if (passedTests === 0) {
+            overallVerdict = testResults[0]?.verdict || 'WRONG ANSWER';
+            message = `No test cases passed. ${testResults[0]?.error || ''}`;
+        } else {
+            overallVerdict = 'PARTIAL';
+            message = `${passedTests}/${totalTests} test cases passed`;
+        }
+
+        return {
+            verdict: overallVerdict,
+            message: message,
+            passedTests: passedTests,
+            totalTests: totalTests,
+            testResults: testResults,
+            score: Math.round((passedTests / totalTests) * 100)
+        };
+
+    } catch (error) {
+        return {
+            verdict: 'ERROR',
+            message: `System error: ${error.message}`,
+            testResults: []
+        };
+    }
+};
+
+module.exports = { executeCode, submitCode };

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { fetchProblemById } from '../../services/api';
 import Navbar from '../../components/Navbar';
+import CodeEditor from '../../components/CodeEditor';
 
 const probleminfo = () => {
   const { id } = useParams();
@@ -81,7 +82,7 @@ const probleminfo = () => {
           <p className="text-gray-700 mb-4"><strong>Tags:</strong> {problem.tags?.join(', ')}</p>
         </div>
         <div className="flex-1 bg-gray-100 p-4">
-          <p className="text-gray-500">Right panel (empty for now)</p>
+          <CodeEditor problemId={id} />
         </div>
       </div>
     </>
