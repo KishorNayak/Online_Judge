@@ -62,8 +62,8 @@ const probleminfo = () => {
             onMouseDown={startResizing}
             className="absolute right-0 top-0 h-full w-2 cursor-col-resize bg-gray-400 hover:bg-gray-600 z-10"
           ></div>
-          <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
-          <p className="text-gray-700 mb-2"><strong>Description:</strong> {problem.discription}</p>
+          <h1 className="text-2xl font-bold mb-2 underline">{problem.title}</h1>
+          <p className="text-gray-700 mb-2 "><strong>Description:</strong> {problem.discription}</p>
           <p className="text-gray-700 mb-2"><strong>Input Format:</strong> {problem.inputFormat}</p>
           <p className="text-gray-700 mb-2"><strong>Output Format:</strong> {problem.outputFormat}</p>
           <p className="text-gray-700 mb-2"><strong>Sample Input:</strong> {problem.sampleTestCase?.input}</p>

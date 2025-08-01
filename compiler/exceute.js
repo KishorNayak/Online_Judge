@@ -4,8 +4,6 @@ const path = require('path');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const API = process.env.VITE_API_URL;
-// Import Problem model (assuming it's available)
-const Problem = require('../backend/models/problem');
 const { default: axios } = require('axios');
 
 const outputDir = path.join(__dirname, 'output');
@@ -16,12 +14,11 @@ if (!fs.existsSync(outputDir)) {
 
 const executeCode = async (filepath, input = '', language = 'cpp') => {
     const problemid = path.basename(filepath).split(".")[0];
-    const inputfile = path.join(outputDir, `${problemid}.txt`);
-    const outputfile = path.join(outputDir, `${problemid}.out`);
+    const inputfile = path.join(outputDir, `${problemid}.txt`); // Input file path
+    const outputfile = path.join(outputDir, `${problemid}.out`); // Output file path
 
     // Save input to a file
     fs.writeFileSync(inputfile, input);
-
     let command;
 
     switch (language) {
@@ -41,7 +38,7 @@ const executeCode = async (filepath, input = '', language = 'cpp') => {
     }
 
     return new Promise((resolve, reject) => {
-        exec(command,(error, stdout, stderr) => {
+        exec(command,{timeout: 5000},(error, stdout, stderr) => {
             if (error) return reject({ error, stderr });
             if (stderr) return reject({ stderr });
             resolve(stdout);
@@ -52,10 +49,9 @@ const executeCode = async (filepath, input = '', language = 'cpp') => {
 
 const submitCode = async (id, filepath, language = 'cpp') => {
     try {
-        console.log("problem is being fetched");
-        const res = await axios.get(`${API}/problems/getProblemById?id=${id}`);
+        const res = await axios.get(`${API}/api/problems/getProblemById/${id}`);
+        console.log(res.data);
         const problem = res.data;
-        console.log(problem);
         if (!problem) {
             return {
                 verdict: 'ERROR',
@@ -74,10 +70,17 @@ const submitCode = async (id, filepath, language = 'cpp') => {
             
             try {
                 // Execute code with test case input
-                const actualOutput = await executeCode(filepath, testCase.input, language);
+                const actualOutput = (await executeCode(filepath, testCase.input, language)).trim();
                 const expectedOutput = testCase.output.trim();
                 
-                // Compare outputs (normalize whitespace)
+                // Debug logging
+                console.log(`Test Case ${i + 1}:`);
+                console.log(`Input: "${testCase.input}"`);
+                console.log(`Expected: "${expectedOutput}"`);
+                console.log(`Actual: "${actualOutput}"`);
+                console.log(`Match: ${actualOutput === expectedOutput}`);
+                
+                // Compare outputs
                 const isCorrect = actualOutput === expectedOutput;
                 
                 if (isCorrect) {

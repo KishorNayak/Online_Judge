@@ -1,19 +1,43 @@
 import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import Editor from '@monaco-editor/react';
 
 const CodeEditor = ({ problemId }) => {
-  const [code, setCode] = useState('// Write your code here\n');
+  // Get API URL from environment variable
+  const API = import.meta.env.VITE_COMPILER_URL || 'http://localhost:5001';
+  
   const [language, setLanguage] = useState('cpp');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [fontSize, setFontSize] = useState(14);
-  const textareaRef = useRef(null);
+  const [customInput, setCustomInput] = useState('');
+  const [isRunning, setIsRunning] = useState(false);
+  const [bottomPanelHeight, setBottomPanelHeight] = useState(200);
+  const [isResizing, setIsResizing] = useState(false);
 
   const languages = [
-    { value: 'cpp', label: 'C++', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}' },
-    { value: 'python', label: 'Python', template: '# Write your Python code here\n' },
-    { value: 'java', label: 'Java', template: 'public class Solution {\n    public static void main(String[] args) {\n        // Your code here\n    }\n}' }
+    { 
+      value: 'cpp', 
+      label: 'C++', 
+      monacoLang: 'cpp',
+      template: '#include <iostream>\n#include <vector>\n#include <string>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}' 
+    },
+    { 
+      value: 'python', 
+      label: 'Python', 
+      monacoLang: 'python',
+      template: '# Write your Python code here\ndef main():\n    pass\n\nif __name__ == "__main__":\n    main()' 
+    },
+    { 
+      value: 'java', 
+      label: 'Java', 
+      monacoLang: 'java',
+      template: 'import java.util.*;\nimport java.io.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}' 
+    }
   ];
+
+  // Initialize code with C++ template
+  const [code, setCode] = useState(languages[0].template);
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
@@ -29,26 +53,27 @@ const CodeEditor = ({ problemId }) => {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsRunning(true);
     setResult(null);
 
     try {
-      const response = await axios.post('http://localhost:5000/compiler/run', {
+      const response = await axios.post(`${API}/compiler/run`, {
         code,
         language,
-        input: ''
+        input: customInput
       });
 
-      setResult({ verdict: 'OUTPUT', message: response.data.output });
+      setResult({ verdict: 'OUTPUT', message: response.data.output, isCustomRun: true });
     } catch (error) {
       console.error('Run error:', error);
       setResult({
         verdict: 'ERROR',
         message: 'Failed to run code. Please try again.',
-        error: error.response?.data?.message || error.message
+        error: error.response?.data?.message || error.message,
+        isCustomRun: true
       });
     } finally {
-      setIsSubmitting(false);
+      setIsRunning(false);
     }
   };
 
@@ -62,14 +87,15 @@ const CodeEditor = ({ problemId }) => {
 
     setIsSubmitting(true);
     setResult(null);
-
+    const id = problemId;
     try {
-      const response = await axios.post('http://localhost:5000/submit', {
+      const response = await axios.post(`${API}/compiler/submit`, {
         code,
         language,
-        problemId
+        id
       });
 
+      console.log(response.data);
       setResult(response.data);
     } catch (error) {
       console.error('Submission error:', error);
@@ -108,6 +134,12 @@ const CodeEditor = ({ problemId }) => {
     }
   };
 
+  const handleScroll = (e) => {
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = e.target.scrollTop;
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
@@ -138,77 +170,188 @@ const CodeEditor = ({ problemId }) => {
           </div>
         </div>
 
-        {/* run buttom */}
-        <button
-          onClick={handleRun}
-          disabled={isSubmitting}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            isSubmitting
-              ? 'bg-gray-300 cursor-not-allowed text-white'
-              : 'bg-gray-600 hover:bg-gray-700 text-white'
-          }`}
-        >
-          {isSubmitting ? 'Running...' : 'Run Code'}
-        </button>
+        {/* Run button */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRun}
+            disabled={isSubmitting || isRunning}
+            className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              isSubmitting || isRunning
+                ? 'bg-gray-300 cursor-not-allowed text-white'
+                : 'bg-gray-600 hover:bg-gray-700 text-white'
+            }`}
+          >
+            {isRunning ? 'Running...' : 'Run Code'}
+          </button>
 
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            isSubmitting
-              ? 'bg-gray-400 cursor-not-allowed text-white'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}
-        >
-          {isSubmitting ? 'Submitting...' : 'Submit Code'}
-        </button>
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting || isRunning}
+            className={`px-6 py-2 rounded-md font-medium transition-colors ${
+              isSubmitting || isRunning
+                ? 'bg-gray-400 cursor-not-allowed text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Code'}
+          </button>
+        </div>
       </div>
 
       {/* Code Editor */}
-<div className="flex-1 relative flex bg-white">
-  {/* Line numbers sidebar */}
-  <div
-    className="border-r border-gray-300 text-gray-400 font-mono text-right py-4 px-3 select-none bg-gray-50"
-    style={{
-      width: '48px',
-      fontSize: `${fontSize}px`,
-      lineHeight: '1.5',
-    }}
-  >
-    {code.split('\n').map((_, index) => (
-      <div key={index}>{index + 1}</div>
-    ))}
-  </div>
+      <div className="flex-1 relative flex bg-white overflow-hidden" style={{ height: result && !result.isCustomRun ? '100%' : `calc(100% - ${bottomPanelHeight}px)` }}>
+        {/* Monaco Editor */}
+        <div className="w-full h-full">
+          <Editor
+            height="100%"
+            language={languages.find(lang => lang.value === language)?.monacoLang || 'cpp'}
+            value={code}
+            onChange={(value) => setCode(value || '')}
+            theme="vs-dark"
+            options={{
+              fontSize: fontSize,
+              fontFamily: 'Consolas, "Courier New", monospace',
+              lineHeight: 1.5,
+              tabSize: 4,
+              insertSpaces: true,
+              detectIndentation: false,
+              automaticLayout: true,
+              minimap: { enabled: false },
+              scrollBeyondLastLine: false,
+              wordWrap: 'on',
+              lineNumbers: 'on',
+              glyphMargin: false,
+              folding: true,
+              lineDecorationsWidth: 0,
+              lineNumbersMinChars: 3,
+              renderLineHighlight: 'line',
+              selectOnLineNumbers: true,
+              roundedSelection: false,
+              readOnly: false,
+              cursorStyle: 'line',
+              automaticLayout: true,
+              // IntelliSense and autocomplete settings
+              suggestOnTriggerCharacters: true,
+              acceptSuggestionOnEnter: 'on',
+              tabCompletion: 'on',
+              wordBasedSuggestions: true,
+              // Syntax highlighting
+              colorDecorators: true,
+              // Bracket matching
+              matchBrackets: 'always',
+              autoClosingBrackets: 'always',
+              autoClosingQuotes: 'always',
+              autoSurround: 'languageDefined',
+              // Error squiggles
+              renderValidationDecorations: 'on'
+            }}
+            loading={<div className="flex items-center justify-center h-full text-gray-500">Loading editor...</div>}
+          />
+        </div>
+      </div>
 
-  {/* Textarea editor */}
-  <textarea
-    ref={textareaRef}
-    value={code}
-    onChange={(e) => setCode(e.target.value)}
-    onKeyDown={handleKeyDown}
-    spellCheck={false}
-    className="w-full h-full p-4 font-mono resize-none focus:outline-none border-none"
-    style={{
-      fontSize: `${fontSize}px`,
-      lineHeight: '1.5',
-      tabSize: 4,
-    }}
-    placeholder="Write your code here..."
-  />
-</div>
+      {/* Resizer - Only show when verdict is not displayed */}
+      {!(result && !result.isCustomRun) && (
+        <div
+          className={`h-1 bg-gray-200 cursor-row-resize hover:bg-blue-400 transition-colors select-none ${
+            isResizing ? 'bg-blue-500' : ''
+          }`}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setIsResizing(true);
+            const startY = e.clientY;
+            const startHeight = bottomPanelHeight;
+
+            // Prevent text selection during resize
+            document.body.style.userSelect = 'none';
+            document.body.style.webkitUserSelect = 'none';
+            document.body.style.msUserSelect = 'none';
+
+            const handleMouseMove = (e) => {
+              e.preventDefault();
+              const deltaY = startY - e.clientY;
+              const newHeight = Math.min(Math.max(startHeight + deltaY, 100), 400);
+              setBottomPanelHeight(newHeight);
+            };
+
+            const handleMouseUp = () => {
+              setIsResizing(false);
+              
+              // Re-enable text selection
+              document.body.style.userSelect = '';
+              document.body.style.webkitUserSelect = '';
+              document.body.style.msUserSelect = '';
+              
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+          }}
+        />
+      )}
+
+      {/* Bottom Input/Output Panel - Only show when verdict is not displayed */}
+      {!(result && !result.isCustomRun) && (
+        <div 
+          className="border-t border-gray-200 bg-gray-50 flex"
+          style={{ height: `${bottomPanelHeight}px` }}
+        >
+          {/* Input Section */}
+          <div className="flex-1 p-4 border-r border-gray-200">
+            <h4 className="font-medium text-gray-700 mb-2">Custom Input</h4>
+            <textarea
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              placeholder="sample input"
+              className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              style={{ height: `${bottomPanelHeight - 80}px` }}
+            />
+          </div>
+
+          {/* Output Section */}
+          <div className="flex-1 p-4">
+            <h4 className="font-medium text-gray-700 mb-2">Output</h4>
+            <div 
+              className="w-full p-3 border border-gray-300 rounded-md bg-white font-mono text-sm overflow-y-auto"
+              style={{ height: `${bottomPanelHeight - 80}px` }}
+            >
+              {result && result.isCustomRun ? (
+                <div className={result.verdict === 'OUTPUT' ? 'text-gray-800' : 'text-red-600'}>
+                  {result.verdict === 'OUTPUT' ? result.message : `Error: ${result.message}`}
+                </div>
+              ) : (
+                <div className="text-gray-400 italic">Output</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
 
-      {/* Results Panel */}
-      {result && (
+      {/* Submission Results Panel */}
+      {result && !result.isCustomRun && (
         <div className="border-t border-gray-200 p-4 bg-gray-50 max-h-64 overflow-y-auto">
           <div className={`p-3 rounded-md border ${getVerdictColor(result.verdict)}`}>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-lg">{result.verdict}</h3>
-              {result.score !== undefined && (
-                <span className="text-sm font-medium">
-                  Score: {result.score}% ({result.passedTests}/{result.totalTests})
-                </span>
-              )}
+              <div className="flex items-center space-x-4">
+                <h3 className="font-bold text-lg">{result.verdict}</h3>
+                {result.score !== undefined && (
+                  <span className="text-sm font-medium">
+                    Score: {result.score}% ({result.passedTests}/{result.totalTests})
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setResult(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                title="Close results"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             <p className="text-sm mb-2">{result.message}</p>
             
@@ -218,10 +361,10 @@ const CodeEditor = ({ problemId }) => {
                 <div className="space-y-1 max-h-32 overflow-y-auto">
                   {result.testResults.map((test, index) => (
                     <div key={index} className="text-xs p-2 bg-white rounded border">
-                      <span className={`font-medium ${test.passed ? 'text-green-600' : 'text-red-600'}`}>
-                        Test {index + 1}: {test.passed ? 'PASSED' : 'FAILED'}
+                      <span className={`font-medium ${test.status === 'PASSED' ? 'text-green-600' : 'text-red-600'}`}>
+                        Test {index + 1}: {test.status === 'PASSED' ? 'PASSED' : 'FAILED'}
                       </span>
-                      {!test.passed && test.error && (
+                      {test.status !== 'PASSED' && test.error && (
                         <div className="mt-1 text-red-600">{test.error}</div>
                       )}
                     </div>

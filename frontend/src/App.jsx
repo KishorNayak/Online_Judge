@@ -21,7 +21,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* temp routes for dev purposes only */}
-        {/* <Route path='/problems/:problemID' element={<Discription/>}/> */}
         <Route path='/problemlist' element={<Problemlist/>}/>
         <Route path='/createproblem' element={<Newproblem />}/>
         <Route path="/problems/:id" element={<Discription/>}/>
@@ -52,7 +51,7 @@ function App() {
             </ProtectedRoute>
           }
         /> */}
-      </Routes> ø
+      </Routes> 
     </Router>
   );
 }

@@ -19,6 +19,7 @@ app.get("/compiler", (req,res) => {
   res.send("this is compiler");
 })
 
+
 app.post("/compiler/run", (req, res) => {
   const { code, language, input } = req.body;
 
@@ -56,7 +57,7 @@ app.post("/compiler/submit", async (req, res) => {
   // Validate required fields
   if (!code || !language || !id) {
     return res.status(400).json({ 
-      error: "Code, language, and id are required" 
+      error: "code, language, and id are required" 
     });
   }
 
