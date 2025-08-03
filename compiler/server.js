@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { generatefile } = require("./generatefile");
 const { executeCode, submitCode } = require("./exceute");
+const { getaireview } = require("./getcodereview.js");
 require("dotenv").config();
 
 //calling  MongoDB connecting fucntion
@@ -81,6 +82,23 @@ app.post("/compiler/submit", async (req, res) => {
     });
   }
 });
+
+
+// End point for ai review
+app.post("/compiler/ai-review", async (req,res) => {
+  const { code } = req.body;
+
+  if(!code){
+    return res.status(400).json({ error: "Code is required" });
+  }
+  try{
+    const result = await getaireview(code);
+    res.status(200).json({ review: result });
+  }catch(error){
+    console.error("Error in ai review:", error);
+    res.status(500).json({ error: "Failed to process ai review" });
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

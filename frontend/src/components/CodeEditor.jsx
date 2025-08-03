@@ -4,10 +4,12 @@ import Editor from '@monaco-editor/react';
 
 const CodeEditor = ({ problemId }) => {
   // Get API URL from environment variable
-  const API = import.meta.env.VITE_COMPILER_URL || 'http://localhost:5001';
+  const API = import.meta.env.VITE_COMPILER_URL;
   
   const [language, setLanguage] = useState('cpp');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isreviewing, setIsReviewing] = useState(false);
+  const [review, setReview] = useState(null);
   const [result, setResult] = useState(null);
   const [fontSize, setFontSize] = useState(14);
   const [customInput, setCustomInput] = useState('');
@@ -109,6 +111,37 @@ const CodeEditor = ({ problemId }) => {
     }
   };
 
+  //handle code review
+  const handlecodereview = async () => {
+    if (!code.trim()) {
+      alert('Please write some code before requesting a review!');
+      return;
+    }
+
+    setIsReviewing(true);
+    setReview(null);
+    try{
+      const response = await axios.post(`${API}/compiler/ai-review`, {code});
+      console.log(response.data);
+      setReview({
+        verdict: 'REVIEW_COMPLETE',
+        message: 'Code review completed successfully',
+        review: response.data.review,
+        isCodeReview: true
+      });
+    } catch (error) {
+      console.error('Review error:', error);
+      setReview({
+        verdict: 'ERROR',
+        message: 'Failed to review code. Please try again.',
+        error: error.response?.data?.message || error.message,
+        isCodeReview: true
+      });
+    } finally {
+      setIsReviewing(false);
+    }
+  }
+
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -141,7 +174,7 @@ const CodeEditor = ({ problemId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col bg-white" style={{ height: '100%', width: '100%', flex: 1, overflow: 'hidden' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center space-x-4">
@@ -170,7 +203,7 @@ const CodeEditor = ({ problemId }) => {
           </div>
         </div>
 
-        {/* Run button */}
+        {/* Buttons */}
         <div className="flex items-center space-x-3">
           <button
             onClick={handleRun}
@@ -187,7 +220,7 @@ const CodeEditor = ({ problemId }) => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || isRunning}
-            className={`px-6 py-2 rounded-md font-medium transition-colors ${
+            className={`px-6 py-2 rounded-md font-medium transition-colors border border-gray-300 ${
               isSubmitting || isRunning
                 ? 'bg-gray-400 cursor-not-allowed text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -195,11 +228,26 @@ const CodeEditor = ({ problemId }) => {
           >
             {isSubmitting ? 'Submitting...' : 'Submit Code'}
           </button>
+
+          <button
+            onClick={handlecodereview}
+            disabled={isreviewing || isRunning || isSubmitting}
+            className={`px-6 py-2 rounded-md font-medium transition-colors border border-gray-300 ${
+              isSubmitting || isRunning || isreviewing
+                ? 'bg-gray-400 cursor-not-allowed text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {isreviewing ? 'Reviewing...' : 'Code Review'}
+          </button>
         </div>
       </div>
 
       {/* Code Editor */}
-      <div className="flex-1 relative flex bg-white overflow-hidden" style={{ height: result && !result.isCustomRun ? '100%' : `calc(100% - ${bottomPanelHeight}px)` }}>
+      <div className="flex-1 relative flex bg-white" style={{ 
+        height: result && !result.isCustomRun ? 'calc(100% - 80px)' : `calc(100% - 80px - ${bottomPanelHeight}px)`,
+        overflow: 'hidden'
+      }}>
         {/* Monaco Editor */}
         <div className="w-full h-full">
           <Editor
@@ -230,6 +278,16 @@ const CodeEditor = ({ problemId }) => {
               readOnly: false,
               cursorStyle: 'line',
               automaticLayout: true,
+              // Scrolling options
+              scrollbar: {
+                vertical: 'visible',
+                horizontal: 'visible',
+                useShadows: false,
+                verticalHasArrows: false,
+                horizontalHasArrows: false,
+                verticalScrollbarSize: 14,
+                horizontalScrollbarSize: 14
+              },
               // IntelliSense and autocomplete settings
               suggestOnTriggerCharacters: true,
               acceptSuggestionOnEnter: 'on',
@@ -332,7 +390,7 @@ const CodeEditor = ({ problemId }) => {
 
       {/* Submission Results Panel */}
       {result && !result.isCustomRun && (
-        <div className="border-t border-gray-200 p-4 bg-gray-50 max-h-64 overflow-y-auto">
+        <div className="border-t border-gray-200 p-4 bg-gray-50" style={{ maxHeight: '300px', overflowY: 'auto', flexShrink: 0 }}>
           <div className={`p-3 rounded-md border ${getVerdictColor(result.verdict)}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-4">
@@ -376,6 +434,63 @@ const CodeEditor = ({ problemId }) => {
             {result.error && (
               <div className="mt-2 p-2 bg-red-100 border border-red-200 rounded text-red-700 text-sm">
                 <strong>Error:</strong> {result.error}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Code Review Results Panel */}
+      {review && review.isCodeReview && (
+        <div className="border-t border-gray-200 p-4 bg-blue-50" style={{ maxHeight: '320px', overflowY: 'auto', flexShrink: 0 }}>
+          <div className={`p-3 rounded-md border ${
+            review.verdict === 'ERROR' 
+              ? 'bg-red-50 border-red-200 text-red-800' 
+              : 'bg-blue-50 border-blue-200 text-blue-800'
+          }`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-4">
+                <h3 className="font-bold text-lg flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                  {review.verdict === 'ERROR' ? 'Review Error' : 'AI Code Review'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setReview(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+                title="Close review"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {review.verdict === 'ERROR' ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{review.message}</p>
+                {review.error && (
+                  <div className="p-2 bg-red-100 border border-red-200 rounded text-red-700 text-sm">
+                    <strong>Error:</strong> {review.error}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-blue-700">{review.message}</p>
+                <div className="bg-white p-4 rounded-md border border-blue-200 shadow-sm">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Review Feedback:
+                  </h4>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {review.review}
+                  </div>
+                </div>
               </div>
             )}
           </div>

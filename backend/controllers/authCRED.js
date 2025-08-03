@@ -127,7 +127,7 @@ const updateProblem = async (req, res) => {
   }
 };
 
-// DELETE /api/problems/:id - Delete a problem
+// DELETE /api/problems//deleteproblem/:id - Delete a problem
 const deleteProblem = async (req, res) => {
   try {
     await Problem.findByIdAndDelete(req.params.id);

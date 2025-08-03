@@ -10,6 +10,7 @@ import Problemlist from './pages/problems/problemlist'
 import { ProtectedRoute, AdminRoute } from './features/protectedRoute';
 import Frontpage from './pages/frontpage';
 import Discription from './pages/problems/Discription';
+import Updateproblem from './pages/problems/updateproblem';
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -24,8 +25,7 @@ function App() {
         <Route path='/problemlist' element={<Problemlist/>}/>
         <Route path='/createproblem' element={<Newproblem />}/>
         <Route path="/problems/:id" element={<Discription/>}/>
-
-
+        <Route path='/updateproblem' element={<Updateproblem/>}/>
         {/* admin and login routes */}
         {/* <Route
           path="/createproblem"

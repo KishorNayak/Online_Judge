@@ -11,6 +11,8 @@ const { createproblem,
 router.get('/createproblem', (req, res) => res.send("this is new problem page"));
 router.get('/getallproblems', getallproblems); 
 router.get('/getProblemById/:id', getProblemById);
+router.put('/updateproblem/:id', updateProblem);
+router.delete('/deleteproblem/:id', deleteProblem);
 
 //post
 router.post('/createproblem', createproblem);
