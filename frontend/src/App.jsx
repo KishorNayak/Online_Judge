@@ -8,7 +8,6 @@ import Login from './pages/auth/login'
 import Newproblem from './pages/problems/createproblem'
 import Problemlist from './pages/problems/problemlist'
 import { ProtectedRoute, AdminRoute } from './features/protectedRoute';
-import Frontpage from './pages/frontpage';
 import Discription from './pages/problems/Discription';
 import Updateproblem from './pages/problems/updateproblem';
 import Contest from './pages/advanced/contests';
@@ -22,7 +21,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/problems/:id" element={<Discription />} />

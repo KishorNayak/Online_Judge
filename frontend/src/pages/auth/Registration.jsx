@@ -35,7 +35,7 @@ const Register = () => {
       dispatch(verifylogin());
       dispatch(verifyadmin(response.data.user.email));
       console.log("Login response:", response.data);
-      navigate('/home');
+      navigate('/');
       // Optionally, redirect or show success message
     } catch (error) {
       setError(error.response?.data?.message || "Login failed. Please try again.");
