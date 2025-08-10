@@ -66,15 +66,22 @@ const CodeEditor = ({ problemId }) => {
       });
 
       setResult({ verdict: 'OUTPUT', message: response.data.output, isCustomRun: true });
-    } catch (error) {
-      console.error('Run error:', error);
-      setResult({
-        verdict: 'ERROR',
-        message: 'Failed to run code. Please try again.',
-        error: error.response?.data?.message || error.message,
-        isCustomRun: true
-      });
-    } finally {
+    }catch (error) {
+  const errMsg =
+    error.response?.data?.details?.stderr || // compiler output
+    error.response?.data?.message ||         // general backend message
+    error.response?.data?.error ||           // backend "error" field
+    error.message;                           // Axios default
+
+  console.error('Run error:', errMsg);
+
+  setResult({
+    verdict: 'ERROR',
+    message: 'Failed to run code. Please try again.',
+    error: errMsg,
+    isCustomRun: true
+  });
+}finally {
       setIsRunning(false);
     }
   };
@@ -174,7 +181,7 @@ const CodeEditor = ({ problemId }) => {
   };
 
   return (
-    <div className="flex flex-col bg-white" style={{ height: '100%', width: '100%', flex: 1, overflow: 'hidden' }}>
+    <div className="flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" style={{ height: '100%', width: '100%', flex: 1, overflow: 'hidden' }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center space-x-4">
@@ -277,7 +284,6 @@ const CodeEditor = ({ problemId }) => {
               roundedSelection: false,
               readOnly: false,
               cursorStyle: 'line',
-              automaticLayout: true,
               // Scrolling options
               scrollbar: {
                 vertical: 'visible',
@@ -309,7 +315,7 @@ const CodeEditor = ({ problemId }) => {
       </div>
 
       {/* Resizer - Only show when verdict is not displayed */}
-      {!(result && !result.isCustomRun) && (
+      {!(result && !result.isCustomRun && review && !review.isCodeReview && result?.error && result.isCustomRun) && (
         <div
           className={`h-1 bg-gray-200 cursor-row-resize hover:bg-blue-400 transition-colors select-none ${
             isResizing ? 'bg-blue-500' : ''
@@ -350,8 +356,8 @@ const CodeEditor = ({ problemId }) => {
         />
       )}
 
-      {/* Bottom Input/Output Panel - Only show when verdict is not displayed */}
-      {!(result && !result.isCustomRun) && (
+      {/* Bottom Input/Output Panel - Only show when verdict and code review is not displayed */}
+      {!(result && !result.isCustomRun && review && !review.isCodeReview && result?.error && result.isCustomRun) && (
         <div 
           className="border-t border-gray-200 bg-gray-50 flex"
           style={{ height: `${bottomPanelHeight}px` }}
@@ -382,6 +388,42 @@ const CodeEditor = ({ problemId }) => {
               ) : (
                 <div className="text-gray-400 italic">Output</div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Panel for Custom Run */}
+      {result?.error && result.isCustomRun && (
+        <div
+          className="fixed left-0 right-0 z-30"
+          style={{
+            bottom: 0,
+            // anchor to bottom of container, not window: use relative parent with overflow hidden
+            position: 'absolute',
+            height: '250px',
+            transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+            transform: result?.error && result.isCustomRun ? 'translateY(0)' : 'translateY(100%)',
+            pointerEvents: 'auto'
+          }}
+        >
+          <div className="bg-red-50 border-t-2 border-red-400 h-full w-full shadow-lg flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-red-200">
+              <h4 className="font-bold text-red-700 text-base">Error Output</h4>
+              <button
+                className="text-red-400 hover:text-red-600 p-1 rounded transition-colors"
+                onClick={() => setResult(null)}
+                title="Close error panel"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-2">
+              <pre className="font-mono text-sm text-red-800 whitespace-pre-wrap break-all">
+                {result.error || result.message}
+              </pre>
             </div>
           </div>
         </div>

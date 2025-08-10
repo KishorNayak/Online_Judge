@@ -11,6 +11,10 @@ import { ProtectedRoute, AdminRoute } from './features/protectedRoute';
 import Frontpage from './pages/frontpage';
 import Discription from './pages/problems/Discription';
 import Updateproblem from './pages/problems/updateproblem';
+import Contest from './pages/advanced/contests';
+import Profile from './pages/advanced/profile';
+import Leaderboard from './pages/advanced/leaderboard';
+
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -18,40 +22,46 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home/>} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        {/* temp routes for dev purposes only */}
-        <Route path='/problemlist' element={<Problemlist/>}/>
-        <Route path='/createproblem' element={<Newproblem />}/>
-        <Route path="/problems/:id" element={<Discription/>}/>
-        <Route path='/updateproblem' element={<Updateproblem/>}/>
-        {/* admin and login routes */}
-        {/* <Route
-          path="/createproblem"
-          element={
-            <AdminRoute>
-              <Newproblem />
-            </AdminRoute>
-          }
-        /> */}
-        {/* <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        /> */}
-        {/* <Route
-          path="/problemlist"
+        <Route path="/problems/:id" element={<Discription />} />
+        {/*  login routes */}
+        <Route path="/problemlist"
           element={
             <ProtectedRoute>
               <Problemlist />
             </ProtectedRoute>
           }
-        /> */}
-      </Routes> 
+        />
+        <Route path="/problems/:id"
+          element={
+            <ProtectedRoute>
+              <Discription />
+            </ProtectedRoute>
+          }
+        />
+        {/* admin routes */}
+        <Route path="/createproblem"
+          element={
+            <AdminRoute>
+              <Newproblem />
+            </AdminRoute>
+          }
+        />
+        <Route path="/updateproblem"
+          element={
+            <ProtectedRoute>
+              <Updateproblem />
+            </ProtectedRoute>
+          }
+        />
+
+         {/* Features for the next update */}
+        <Route path="/contests" element={<Contest/>}/>
+        <Route path="/profile" element={<Profile/>}/>
+        <Route path="leaderboard" element={<Leaderboard/>}/>
+      </Routes>
     </Router>
   );
 }

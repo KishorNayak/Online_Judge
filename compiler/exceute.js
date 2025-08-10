@@ -149,6 +149,7 @@ const submitCode = async (id, filepath, language = 'cpp') => {
         };
 
     } catch (error) {
+        console.error("Submission error:", error);
         return {
             verdict: 'ERROR',
             message: `System error: ${error.message}`,
