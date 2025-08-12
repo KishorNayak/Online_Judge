@@ -18,7 +18,7 @@ function Navbar() {
           
           {/* Logo Section */}
           <div className="flex-shrink-0">
-            <Link to="/home" className="group flex items-center space-x-2">
+            <Link to="/" className="group flex items-center space-x-2">
               <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-blue-300 transition-all duration-300">
                 CodeFury
               </div>
