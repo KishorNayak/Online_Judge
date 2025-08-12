@@ -33,7 +33,7 @@ const login = () => {
       console.log("Login successful:", response.data);
       dispatch(verifylogin());
       dispatch(verifyadmin(response.data.user.email));
-      console.log("Login response:", response.data);
+      alert("Login successful");
       navigate('/');
     
     } catch (error) {

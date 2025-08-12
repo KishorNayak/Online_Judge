@@ -17,7 +17,7 @@ const authSlice = createSlice({
     verifylogout(state) {
       state.isLoggedIn = false;
       localStorage.setItem("isLoggedIn", false);
-      state.isadmin = isAdmin;
+      state.isadmin = false;
       localStorage.setItem("isadmin",false);
     },
     verifyadmin(state, action) {
