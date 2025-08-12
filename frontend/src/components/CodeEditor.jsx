@@ -104,7 +104,6 @@ const CodeEditor = ({ problemId }) => {
         id
       });
 
-      console.log(response.data);
       setResult(response.data);
     } catch (error) {
       console.error('Submission error:', error);
@@ -129,7 +128,6 @@ const CodeEditor = ({ problemId }) => {
     setReview(null);
     try{
       const response = await axios.post(`${API}/compiler/ai-review`, {code});
-      console.log(response.data);
       setReview({
         verdict: 'REVIEW_COMPLETE',
         message: 'Code review completed successfully',
