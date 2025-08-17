@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { verifylogout } from '../features/authSlice';
+import codefury from '../assets/codefury_logo.png';
 
 function Navbar() {
   const navigate = useNavigate();
@@ -13,20 +14,19 @@ function Navbar() {
   }  
   return (
     <nav className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           
           {/* Logo Section */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="group flex items-center space-x-2">
+          <div className="flex-shrink-0 group flex items-center space-x-2" onClick={()=> navigate('/')}>
+            <img className="w-12 h-12" src={codefury} alt="logo"/>
               <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-blue-300 transition-all duration-300">
                 CodeFury
               </div>
-              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full group-hover:scale-125 transition-transform duration-300"></div>
-            </Link>
           </div>
 
           {/* Navigation Links */}
+          <div>
           <div className="hidden md:flex items-center space-x-1">
             
             {/* Navigation Menu Items */}
@@ -102,6 +102,7 @@ function Navbar() {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Subtle glow effect */}
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent"></div>

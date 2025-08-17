@@ -29,7 +29,6 @@ const ProblemsList = () => {
       setProblems(response);
       setError(null);
     } catch (err) {
-      console.error('Error loading problems:', err);
       setError('Failed to load problems. Please try again later.');
     } finally {
       setLoading(false);
@@ -46,7 +45,6 @@ const ProblemsList = () => {
 
   const navigate = useNavigate();
   const handleProblemClick = (problemId) => {
-    console.log('Navigate to problem:', problemId);
     navigate(`/problems/${problemId}`);
   };
 
@@ -92,10 +90,18 @@ const ProblemsList = () => {
 
         {/* Filters Section */}
         <div className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-xl mb-8 border border-slate-700/50">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <div className="flex justify-between items-center mb-1">
+          <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
             <span className="text-blue-400">🔍</span>
             Search & Filter
           </h3>
+            <button
+              onClick={handleFilter}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+            >
+              Apply Filters
+            </button>
+            </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search Input */}
@@ -105,7 +111,7 @@ const ProblemsList = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full p-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="e.g., Two Sum, Binary Search..."
               />
             </div>
@@ -116,7 +122,7 @@ const ProblemsList = () => {
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full p-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
               >
                 <option value="">All Levels</option>
                 <option value="Easy">Easy</option>
@@ -132,19 +138,10 @@ const ProblemsList = () => {
                 type="text"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                className="w-full p-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full p-2 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                 placeholder="array, dp, math..."
               />
             </div>
-          </div>
-
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={handleFilter}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
-            >
-              Apply Filters
-            </button>
           </div>
         </div>
 

@@ -1,9 +1,18 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Link, Navigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
+const API = import.meta.env.VITE_API_URL;
 function Home() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    //starting the backend server
+    const res = axios.get(`${API}/`);
+  });
+
   return (
     <>
       <Navbar />
@@ -42,26 +51,25 @@ function Home() {
           <div className="flex flex-col lg:flex-row justify-center items-center gap-8 max-w-6xl mx-auto">
             
             {/* Problem List Card */}
-            <Link to="/problemlist" className="group">
-              <div className="relative w-80 h-64 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-8 shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl border border-blue-500/20">
+              <div className="relative w-80 h-64 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-8 shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl border border-blue-500/20" 
+              onClick={() => navigate('/problemlist')}>
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent rounded-2xl"></div>
                 <div className="relative z-10">
                   <div className="text-4xl mb-4">🧩</div>
                   <h3 className="text-2xl font-bold text-white mb-3">Problem Set</h3>
                   <p className="text-blue-100 mb-6 leading-relaxed">
-                    Explore 1000+ curated coding challenges from beginner to expert level
+                    Explore curated coding challenges from beginner to expert level
                   </p>
                   <div className="flex justify-between items-center text-sm text-blue-200">
-                    <span>1000+ Problems</span>
+                    <span>Curated Problems</span>
                     <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
                   </div>
                 </div>
               </div>
-            </Link>
 
             {/* Contests Card */}
-            <Link to="/contests" className="group">
-              <div className="relative w-80 h-64 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-8 shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl border border-purple-500/20">
+              <div className="relative w-80 h-64 bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-8 shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-3xl border border-purple-500/20"
+              onClick={() => navigate('/contests')}>
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 to-transparent rounded-2xl"></div>
                 <div className="relative z-10">
                   <div className="text-4xl mb-4">🏆</div>
@@ -75,7 +83,6 @@ function Home() {
                   </div>
                 </div>
               </div>
-            </Link>
 
           </div>
 

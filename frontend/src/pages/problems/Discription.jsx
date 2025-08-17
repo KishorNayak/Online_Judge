@@ -44,7 +44,6 @@ const ProblemInfo = () => {
 
   // Handle update
   const handleUpdate = () => {
-    console.log('Update problem:', id);
     try {
       navigate(`/updateproblem`, { state: { id } });
     } catch (error) {
@@ -56,7 +55,6 @@ const ProblemInfo = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this problem? This action cannot be undone.')) {
       try {
-        console.log('Deleting problem:', id);
         await deleteProblem(id);
         // Show success notification
         const successDiv = document.createElement('div');
@@ -69,7 +67,6 @@ const ProblemInfo = () => {
           navigate('/problemlist');
         }, 2000);
       } catch (error) {
-        console.error('Error deleting problem:', error);
         // Show error notification
         const errorDiv = document.createElement('div');
         errorDiv.className = 'fixed top-4 right-4 bg-red-500/20 border border-red-500/30 text-red-300 px-6 py-3 rounded-xl z-50';
@@ -93,12 +90,10 @@ const ProblemInfo = () => {
       try {
         setIsLoading(true);
         const res = await fetchProblemById(id);
-        console.log(res);
         setProblem(res);
         setError('');
       } catch (err) {
         setError('Failed to load problem. Please try again.');
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -263,39 +258,35 @@ const ProblemInfo = () => {
                 {/* Description */}
                 <div>
                   <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                    <span className="text-blue-400">📋</span>
-                    Description
+                    <span className="text-blue-400">Description</span>
                   </h2>
                   <p className="text-gray-300 leading-relaxed mb-6">{problem.discription}</p>
                 </div>
 
                 {/* Input Format */}
                 <div>
-                  <h3 className="text-md font-semibold text-white mb-3 flex items-center gap-2">
-                    <span className="text-green-400">📥</span>
-                    Input Format
-                  </h3>
+                  <h4 className="text-md font-semibold text-white mb-3 flex items-center gap-2">
+                    <span className="text-blue-400">Input Format</span>
+                  </h4>
                   <p className="text-gray-300 leading-relaxed mb-6">{problem.inputFormat}</p>
                 </div>
 
                 {/* Output Format */}
                 <div>
                   <h3 className="text-md font-semibold text-white mb-3 flex items-center gap-2">
-                    <span className="text-purple-400">📤</span>
-                    Output Format
+                    <span className="text-blue-400">Output Format</span>
                   </h3>
                   <p className="text-gray-300 leading-relaxed mb-6">{problem.outputFormat}</p>
                 </div>
 
                 {/* Sample Test Case */}
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <span className="text-yellow-400">💡</span>
-                    Sample Test Case
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <span className="text-blue-400">Sample Test Case</span>
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-400 mb-2">Sample Input</h4>
+                      <p className="text-sm font-medium !text-blue-400 mb-2">Sample Input</p>
                       <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
                         <code className="text-green-300 text-sm font-mono whitespace-pre-wrap">
                           {problem.sampleTestCase?.input}
@@ -303,7 +294,7 @@ const ProblemInfo = () => {
                       </div>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-400 mb-2">Sample Output</h4>
+                      <p className="text-sm font-medium !text-blue-400 mb-2">Sample Output</p>
                       <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-600/30">
                         <code className="text-blue-300 text-sm font-mono whitespace-pre-wrap">
                           {problem.sampleTestCase?.output}
@@ -313,7 +304,7 @@ const ProblemInfo = () => {
                   </div>
                 </div>
 
-                {/* Test Cases */}
+                {/* Test Cases
                 {problem.testcases && problem.testcases.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -344,7 +335,7 @@ const ProblemInfo = () => {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>

@@ -88,7 +88,10 @@ const getallproblems = async (req, res) => {
 
     if (difficulty) { filter.difficulty = difficulty;} // Filter by difficulty if provided
     if (search) {filter.title = { $regex: search, $options: 'i' };} // Case-insensitive // Search by title using regex if search term is provided
-    if (tags) {filter.tags = { $in: tags.split(',') }; }// Match any of the tags // Filter by tags if provided (comma-separated)
+    if (tags) { // Match any of the tags // Filter by tags if provided (comma-separated)
+      const tagList = tags.split(',').map(tag => new RegExp(tag, "i")); 
+      filter.tags = { $in: tagList };
+    }
 
     // Fetch problems from database sorted by latest created
     const problems = await Problem.find(filter)

@@ -16,7 +16,7 @@ const CodeEditor = ({ problemId }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [bottomPanelHeight, setBottomPanelHeight] = useState(200);
   const [isResizing, setIsResizing] = useState(false);
-
+  
   const languages = [
     { 
       value: 'cpp', 
@@ -37,6 +37,15 @@ const CodeEditor = ({ problemId }) => {
       template: 'import java.util.*;\nimport java.io.*;\n\npublic class Solution {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Your code here\n    }\n}' 
     }
   ];
+  
+  //get the localstorage code
+  const local_storage_key = `problem_${problemId}_${language}`;
+  useEffect(() => {
+    const saved = localStorage.getItem(local_storage_key);
+    if (saved !== null) setCode(saved);
+  }, [local_storage_key]);
+  
+  
 
   // Initialize code with C++ template
   const [code, setCode] = useState(languages[0].template);
@@ -181,12 +190,12 @@ const CodeEditor = ({ problemId }) => {
   return (
     <div className="flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" style={{ height: '100%', width: '100%', flex: 1, overflow: 'hidden' }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between p-4 border-b text-white">
+        <div className="flex items-center gap-3">
           <select
             value={language}
             onChange={(e) => handleLanguageChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {languages.map(lang => (
               <option key={lang.value} value={lang.value}>{lang.label}</option>
@@ -213,7 +222,7 @@ const CodeEditor = ({ problemId }) => {
           <button
             onClick={handleRun}
             disabled={isSubmitting || isRunning}
-            className={`px-6 py-2 rounded-md font-medium transition-colors ${
+            className={`px-2 py-2 rounded-md font-medium transition-colors ${
               isSubmitting || isRunning
                 ? 'bg-gray-300 cursor-not-allowed text-white'
                 : 'bg-gray-600 hover:bg-gray-700 text-white'
@@ -225,7 +234,7 @@ const CodeEditor = ({ problemId }) => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || isRunning}
-            className={`px-6 py-2 rounded-md font-medium transition-colors border border-gray-300 ${
+            className={`px-2 py-2 rounded-md font-medium transition-colors  ${
               isSubmitting || isRunning
                 ? 'bg-gray-400 cursor-not-allowed text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -237,7 +246,7 @@ const CodeEditor = ({ problemId }) => {
           <button
             onClick={handlecodereview}
             disabled={isreviewing || isRunning || isSubmitting}
-            className={`px-6 py-2 rounded-md font-medium transition-colors border border-gray-300 ${
+            className={`px-2 py-2 rounded-md font-medium transition-colors border border-black-300 ${
               isSubmitting || isRunning || isreviewing
                 ? 'bg-gray-400 cursor-not-allowed text-white'
                 : 'bg-blue-600 hover:bg-blue-700 text-white'
@@ -259,7 +268,7 @@ const CodeEditor = ({ problemId }) => {
             height="100%"
             language={languages.find(lang => lang.value === language)?.monacoLang || 'cpp'}
             value={code}
-            onChange={(value) => setCode(value || '')}
+            onChange={(value) => { setCode(value || ''); localStorage.setItem(local_storage_key, value); }}
             theme="vs-dark"
             options={{
               fontSize: fontSize,
@@ -357,7 +366,7 @@ const CodeEditor = ({ problemId }) => {
       {/* Bottom Input/Output Panel - Only show when verdict and code review is not displayed */}
       {!(result && !result.isCustomRun && review && !review.isCodeReview && result?.error && result.isCustomRun) && (
         <div 
-          className="border-t border-gray-200 bg-gray-50 flex"
+          className="border-t flex text-white"
           style={{ height: `${bottomPanelHeight}px` }}
         >
           {/* Input Section */}
@@ -373,14 +382,14 @@ const CodeEditor = ({ problemId }) => {
           </div>
 
           {/* Output Section */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-4 border-r border-gray-200">
             <h4 className="font-medium text-gray-700 mb-2">Output</h4>
             <div 
-              className="w-full p-3 border border-gray-300 rounded-md bg-white font-mono text-sm overflow-y-auto"
+              className="w-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
               style={{ height: `${bottomPanelHeight - 80}px` }}
             >
               {result && result.isCustomRun ? (
-                <div className={result.verdict === 'OUTPUT' ? 'text-gray-800' : 'text-red-600'}>
+                <div className={result.verdict === 'OUTPUT' ? 'text-white' : 'text-red-600'}>
                   {result.verdict === 'OUTPUT' ? result.message : `Error: ${result.message}`}
                 </div>
               ) : (

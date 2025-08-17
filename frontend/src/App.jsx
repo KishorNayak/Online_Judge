@@ -6,7 +6,7 @@ import Register from './pages/auth/Registration';
 import Home from './pages/home'
 import Login from './pages/auth/login'
 import Newproblem from './pages/problems/createproblem'
-import Problemlist from './pages/problems/problemlist'
+import ProblemList from './pages/problems/problemlist'
 import { ProtectedRoute, AdminRoute } from './features/protectedRoute';
 import Discription from './pages/problems/Discription';
 import Updateproblem from './pages/problems/updateproblem';
@@ -29,7 +29,7 @@ function App() {
         <Route path="/problemlist"
           element={
             <ProtectedRoute>
-              <Problemlist />
+              <ProblemList />
             </ProtectedRoute>
           }
         />
