@@ -24,15 +24,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/problems/:id" element={<Discription />} />
+        <Route path="/problemlist" element={<ProblemList/>}/>
         {/*  login routes */}
-        <Route path="/problemlist"
-          element={
-            <ProtectedRoute>
-              <ProblemList />
-            </ProtectedRoute>
-          }
-        />
         <Route path="/problems/:id"
           element={
             <ProtectedRoute>
